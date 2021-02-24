@@ -18,19 +18,21 @@ struct __attribute__((__packed__)) superblock {
     uint16_t data_blocks_count;
     uint8_t fat_blocks_count;
     char padding[BLOCK_SIZE];
-}
+};
 
 struct __attribute__((__packed__)) root_dir {
     char filename[16];
     uint32_t file_size;
     uint16_t first_data_block_index;
     char padding[10];
-}
+};
 
 struct __attribute__((__packed__)) file_descriptor {
     struct root_dir *file;
     int offset;
-}
+};
+
+struct superblock *super_block;
 
 int fs_mount(const char *diskname)
 {
@@ -40,23 +42,25 @@ int fs_mount(const char *diskname)
     }
     
     // create and read into super block
-    super_block = malloc(sizeof stuct super_block));
+    super_block = malloc(sizeof(struct superblock));
     block_read(0, super_block);
     
     
     // error checking to verify that the file system has the expected format
-    
     // check that signature of file system is ECS150FS
     if (strncmp("ECS150FS", super_block->signature, 8) != 0) {
         return -1;
     }
     
     // check that the total number of block corresponds to what block_disk_count() returns
-    if (data_blocks_count != block_disk_count() {
+    if (super_block->data_blocks_count != block_disk_count()) {
         return -1;
     }
         
     // create root directory and check if root directory block index is correct
+        
+    // populate fat array
+    
     
     
     return 0;
@@ -64,56 +68,74 @@ int fs_mount(const char *diskname)
 
 int fs_umount(void)
 {
-    /* TODO: Phase 1 */
+    return 0;
+    
 }
 
 int fs_info(void)
 {
-    /* TODO: Phase 1 */
+    printf("FS info:\n");
+    printf("total_blk_count=%d \n", super_block->virtual_disk_blocks_count);
+    printf("fat_blk_count=%d \n", super_block->fat_blocks_count);
+    printf("rdir_blk=%d \n", super_block->root_directory_block_index);
+    printf("data_blk=%d \n", super_block->data_block_start_index);
+    printf("data_blk_count=%d \n", super_block->data_blocks_count);
+    printf("fat_free_ratio=\n");
+    printf("rdir_free_ratio=\n");
+    return 0;
 }
 
 int fs_create(const char *filename)
 {
     /* TODO: Phase 2 */
+    return 0;
 }
 
 int fs_delete(const char *filename)
 {
     /* TODO: Phase 2 */
+    return 0;
 }
 
 int fs_ls(void)
 {
     /* TODO: Phase 2 */
+    return 0;
 }
 
 int fs_open(const char *filename)
 {
     /* TODO: Phase 3 */
+    return 0;
 }
 
 int fs_close(int fd)
 {
     /* TODO: Phase 3 */
+    return 0;
 }
 
 int fs_stat(int fd)
 {
     /* TODO: Phase 3 */
+    return 0;
 }
 
 int fs_lseek(int fd, size_t offset)
 {
     /* TODO: Phase 3 */
+    return 0;
 }
 
 int fs_write(int fd, void *buf, size_t count)
 {
     /* TODO: Phase 4 */
+    return 0;
 }
 
 int fs_read(int fd, void *buf, size_t count)
 {
     /* TODO: Phase 4 */
+    return 0;
 }
 
