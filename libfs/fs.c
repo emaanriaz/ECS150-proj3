@@ -96,8 +96,13 @@ int fs_umount(void)
     }
     // write all meta info and file data to disk
     block_write(sb.root_directory_block_index, rd);
+    block_write(0, super_block);
+    block_write(1, fat_table);
+    block_write(2, fat_table + BLOCK_SIZE);
     
     free(fat_table);
+    free(super_block);
+    free(rd);
     
     if(block_disk_close() == -1){
         return -1;
