@@ -245,7 +245,7 @@ int fs_close(int fd)
 
 int fs_stat(int fd)
 {
-    /* TODO: Phase 3 */
+	/* TODO: Phase 3 */
     return 0;
 }
 
