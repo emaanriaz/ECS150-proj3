@@ -96,12 +96,12 @@ int fs_umount(void)
     }
     // write all meta info and file data to disk
     block_write(sb.root_directory_block_index, rd);
-    block_write(0, super_block);
+//    block_write(0, sb);
     block_write(1, fat_table);
     block_write(2, fat_table + BLOCK_SIZE);
     
     free(fat_table);
-    free(super_block);
+//    free(sb);
     free(rd);
     
     if(block_disk_close() == -1){
@@ -157,19 +157,77 @@ int fs_info(void)
 
 int fs_create(const char *filename)
 {
-    /* TODO: Phase 2 */
+    if (filename == NULL || strlen(filename) > FS_FILENAME_LEN){
+        return -1;
+    }
+    
+    int file_count=0;
+    
+    // iterate over root directory
+    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+        // counting how many files exist
+        if (rd[i].filename[0] != '\0'){
+            file_count++;
+            
+            // check is file already exists
+            if (strcmp((char*)rd[i].filename[0], filename) == 0){
+                return -1;
+            }
+        }
+        
+       else if (rd[i].filename[0] == '\0'){
+           // found empty entry, now fill it with file name, set size to 0, and set index to FAT_EOC
+           memcpy(rd[i].filename, filename, FS_FILENAME_LEN);
+           rd[i].file_size = 0;
+           rd[i].first_data_block_index = FAT_EOC;
+           break;
+        }
+    }
+    
+    // check if root dir already contains max number of files
+    if (file_count >= FS_FILE_MAX_COUNT){
+        return -1;
+    }
+    
     return 0;
 }
 
 int fs_delete(const char *filename)
 {
-    /* TODO: Phase 2 */
+    if (filename == NULL){
+        return -1;
+    }
+    
+    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+        if (rd[i].filename[0] != '\0'){
+            // find the file and set entry name back to null
+            if (strcmp((char*)rd[i].filename[0], filename) == 0){
+                rd[i].filename[0] = '\0';
+                
+                // free FAT contents
+                while (rd[i].first_data_block_index != FAT_EOC){
+                    unint16_t temp = fat_table[rd[i].first_data_block_index];
+                    
+                }
+                
+                break;
+            }
+            else {
+                return -1;
+            }
+        }
+    }
     return 0;
 }
 
 int fs_ls(void)
 {
-    /* TODO: Phase 2 */
+    printf("FS Ls:\n");
+    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+        if (rd[i].filename[0] != '\0'){
+            printf("file: %s, size: %d, data_blk: %d\n", rd[i].filename, rd[i].file_size, rd[i].first_data_block_index);
+        }
+    }
     return 0;
 }
 
