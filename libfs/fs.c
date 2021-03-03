@@ -62,27 +62,11 @@ int fs_mount(const char *diskname)
         return -1;
     }
 
-    // see slide 9 of proj3 pp
-    int fb_count_check = block_disk_count() * 2 / BLOCK_SIZE; // fat block
-    int rdb_index_check =  block_disk_count() * 2 / BLOCK_SIZE + 1; // root directory block index
-    int db_index_check = block_disk_count() * 2 / BLOCK_SIZE + 2; // data block start index
-
-    if (sb.fat_blocks_count != fb_count_check){
-        return -1;
-    }
-
-    if (sb.root_directory_block_index != rdb_index_check){
-        return -1;
-    }
-
-    if (sb.data_block_start_index != db_index_check){
-        return -1;
-    }
 
     // create root directory and read into it
     rd = (struct root_dir*)malloc(sizeof(struct root_dir) * FS_FILE_MAX_COUNT);
     block_read(sb.root_directory_block_index, rd);
- 
+
     // create fat table and read into it
     fat_table = malloc(sizeof(uint16_t) * sb.fat_blocks_count * BLOCK_SIZE);
     for (int i=1; i <= sb.fat_blocks_count; i++){
@@ -102,11 +86,11 @@ int fs_umount(void)
 //    block_write(0, sb);
     block_write(1, fat_table);
     block_write(2, fat_table + BLOCK_SIZE);
-    
+
     free(fat_table);
 //    free(sb);
     free(rd);
-    
+
     if(block_disk_close() == -1){
         return -1;
     }
