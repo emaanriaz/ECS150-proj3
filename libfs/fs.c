@@ -160,140 +160,140 @@ int fs_info(void)
 
 int fs_create(const char *filename)
 {
-    if (filename == NULL || strlen(filename) > FS_FILENAME_LEN){
-        return -1;
-    }
-    
-    int file_count=0;
-    
-    // iterate over root directory
-    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
-        // counting how many files exist
-        if (rd[i].filename[0] != '\0'){
-            file_count++;
-            
-            // check is file already exists
-            if (strcmp((char*)rd[i].filename[0], filename) == 0){
-                return -1;
-            }
-        }
-        
-       else if (rd[i].filename[0] == '\0'){
-           // found empty entry, now fill it with file name, set size to 0, and set index to FAT_EOC
-           memcpy(rd[i].filename, filename, FS_FILENAME_LEN);
-           rd[i].file_size = 0;
-           rd[i].first_data_block_index = FAT_EOC;
-           break;
-        }
-    }
-    
-    // check if root dir already contains max number of files
-    if (file_count >= FS_FILE_MAX_COUNT){
-        return -1;
-    }
+//    if (filename == NULL || strlen(filename) > FS_FILENAME_LEN){
+//        return -1;
+//    }
+//
+//    int file_count=0;
+//
+//    // iterate over root directory
+//    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+//        // counting how many files exist
+//        if (rd[i].filename[0] != '\0'){
+//            file_count++;
+//
+//            // check is file already exists
+//            if (strcmp((char*)rd[i].filename[0], filename) == 0){
+//                return -1;
+//            }
+//        }
+//
+//       else if (rd[i].filename[0] == '\0'){
+//           // found empty entry, now fill it with file name, set size to 0, and set index to FAT_EOC
+//           memcpy(rd[i].filename, filename, FS_FILENAME_LEN);
+//           rd[i].file_size = 0;
+//           rd[i].first_data_block_index = FAT_EOC;
+//           break;
+//        }
+//    }
+//
+//    // check if root dir already contains max number of files
+//    if (file_count >= FS_FILE_MAX_COUNT){
+//        return -1;
+//    }
     
     return 0;
 }
 
 int fs_delete(const char *filename)
 {
-    if (filename == NULL || strlen(filename) > FS_FILENAME_LEN){
-        return -1;
-    }
-    
-    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
-        if (rd[i].filename[0] != '\0'){
-            // find the file and set entry name back to null
-            if (strcmp((char*)rd[i].filename, filename) == 0){
-                memset(rd[i].filename, '\0', FS_FILENAME_LEN);
-                
-                // free FAT contents
-                uint16_t current_index = rd[i].first_data_block_index;
-                while (current_index != FAT_EOC){
-                    uint16_t temp_index = fat_table[current_index];
-                    fat_table[current_index] = 0;
-                    current_index = temp_index;
-                    
-                }
-                
-                break;
-            }
-            // if file is not found
-            else {
-                return -1;
-            }
-        }
-    }
+//    if (filename == NULL || strlen(filename) > FS_FILENAME_LEN){
+//        return -1;
+//    }
+//
+//    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+//        if (rd[i].filename[0] != '\0'){
+//            // find the file and set entry name back to null
+//            if (strcmp((char*)rd[i].filename, filename) == 0){
+//                memset(rd[i].filename, '\0', FS_FILENAME_LEN);
+//
+//                // free FAT contents
+//                uint16_t current_index = rd[i].first_data_block_index;
+//                while (current_index != FAT_EOC){
+//                    uint16_t temp_index = fat_table[current_index];
+//                    fat_table[current_index] = 0;
+//                    current_index = temp_index;
+//
+//                }
+//
+//                break;
+//            }
+//            // if file is not found
+//            else {
+//                return -1;
+//            }
+//        }
+//    }
     return 0;
 }
 
 int fs_ls(void)
 {
-    printf("FS Ls:\n");
-    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
-        if (rd[i].filename[0] != '\0'){
-            printf("file: %s, size: %d, data_blk: %d\n", rd[i].filename, rd[i].file_size, rd[i].first_data_block_index);
-        }
-    }
+//    printf("FS Ls:\n");
+//    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+//        if (rd[i].filename[0] != '\0'){
+//            printf("file: %s, size: %d, data_blk: %d\n", rd[i].filename, rd[i].file_size, rd[i].first_data_block_index);
+//        }
+//    }
     return 0;
 }
 
 int fs_open(const char *filename)
 {
-    if (filename == NULL || strlen(filename) > FS_FILENAME_LEN){
-        return -1;
-    }
-
-    int found = -1;
-    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
-       if (strcmp((char*)rd[i].filename, filename) == 0){
-           found = 1;
-           open_files++;
-           strcpy(file_d[i].filename, filename);
-           file_d[i].offset = 0;
-           file_d[i].fd_return = i;
-           return file_d[i].fd_return;
-       }
-    }
-    
-    if (found == -1){
-        return -1;
-    }
+//    if (filename == NULL || strlen(filename) > FS_FILENAME_LEN){
+//        return -1;
+//    }
+//
+//    int found = -1;
+//    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+//       if (strcmp((char*)rd[i].filename, filename) == 0){
+//           found = 1;
+//           open_files++;
+//           strcpy(file_d[i].filename, filename);
+//           file_d[i].offset = 0;
+//           file_d[i].fd_return = i;
+//           return file_d[i].fd_return;
+//       }
+//    }
+//
+//    if (found == -1){
+//        return -1;
+//    }
        
     return 0;
 }
 
 int fs_close(int fd)
 {
-    if (fd > FS_OPEN_MAX_COUNT || fd < 0 || file_d[fd].fd_return == -1){
-        return -1;
-    }
-    strcpy(file_d[fd].filename, "");
-    file_d[fd].offset = 0;
-    file_d[fd].fd_return = -1;
-    open_files--;
+//    if (fd > FS_OPEN_MAX_COUNT || fd < 0 || file_d[fd].fd_return == -1){
+//        return -1;
+//    }
+//    strcpy(file_d[fd].filename, "");
+//    file_d[fd].offset = 0;
+//    file_d[fd].fd_return = -1;
+//    open_files--;
     return 0;
 }
 
 int fs_stat(int fd)
 {
-    if(fd > FS_OPEN_MAX_COUNT || fd < 0 || file_d[fd].fd_return == -1){
-        return -1;
-    }
-
-    char *file = file_d[fd].filename;
-    for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
-        if(strcmp(rd[i].filename, file) == 0){
-            return rd[i].file_size;
-        }
-    }
+//    if(fd > FS_OPEN_MAX_COUNT || fd < 0 || file_d[fd].fd_return == -1){
+//        return -1;
+//    }
+//
+//    char *file = file_d[fd].filename;
+//    for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
+//        if(strcmp(rd[i].filename, file) == 0){
+//            return rd[i].file_size;
+//        }
+//    }
 
     return 0;
 }
 
 int fs_lseek(int fd, size_t offset)
 {
-    file_d[fd].offset = offset;
+//    file_d[fd].offset = offset;
     return 0;
 }
 
