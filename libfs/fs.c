@@ -204,8 +204,8 @@ int fs_delete(const char *filename)
     for (int i=0; i<FS_FILE_MAX_COUNT; i++){
         if (rd[i].filename[0] != '\0'){
             // find the file and set entry name back to null
-            if (strcmp((char*)rd[i].filename[0], filename) == 0){
-                rd[i].filename[0] = '\0';
+            if (strcmp((char*)rd[i].filename, filename) == 0){
+                memset(rd[i].filename, '\0', FS_FILENAME_LEN);
                 
                 // free FAT contents
                 uint16_t current_index = rd[i].first_data_block_index;
@@ -243,25 +243,23 @@ int fs_open(const char *filename)
     if (filename == NULL || strlen(filename) > FS_FILENAME_LEN){
         return -1;
     }
-    
+
+    int found = -1;
     for (int i=0; i<FS_FILE_MAX_COUNT; i++){
-        if (rd[i].filename[0] != '\0'){
-            // find the file and open it
-            if (strcmp((char*)rd[i].filename[0], filename) == 0){
-                
-                    open_files++;
-                    strcpy(file_d[i].filename, filename);
-                    file_d[i].offset = 0;
-                    file_d[i].fd_return = i;
-                    return file_d[i].fd_return;
-                
-            }
-            // if file is not found
-            else {
-                return -1;
-            }
-        }
+       if (strcmp((char*)rd[i].filename, filename) == 0){
+           found = 1;
+           open_files++;
+           strcpy(file_d[i].filename, filename);
+           file_d[i].offset = 0;
+           file_d[i].fd_return = i;
+           return file_d[i].fd_return;
+       }
     }
+    
+    if (found == -1){
+        return -1;
+    }
+       
     return 0;
 }
 
@@ -282,14 +280,14 @@ int fs_stat(int fd)
     if(fd > FS_OPEN_MAX_COUNT || fd < 0 || file_d[fd].fd_return == -1){
         return -1;
     }
-    
+
     char *file = file_d[fd].filename;
     for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
         if(strcmp(rd[i].filename, file) == 0){
             return rd[i].file_size;
         }
     }
-  
+
     return 0;
 }
 
