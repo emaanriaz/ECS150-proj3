@@ -62,7 +62,6 @@ int fs_mount(const char *diskname)
         return -1;
     }
 
-
     // create root directory and read into it
     rd = (struct root_dir*)malloc(sizeof(struct root_dir) * FS_FILE_MAX_COUNT);
     block_read(sb.root_directory_block_index, rd);
@@ -101,7 +100,7 @@ int fs_umount(void)
 // helper functions
 int get_fat_free_blocks(){
     int fat_free_blocks = 0;
-    for (int i=0; i<sb.data_blocks_count; i++){
+    for (int i=1; i<sb.data_blocks_count; i++){
         // Entries marked as 0 correspond to free data blocks
         if (fat_table[i] == 0){
             fat_free_blocks++;
@@ -167,7 +166,7 @@ int fs_create(const char *filename)
            memcpy(rd[i].filename, filename, FS_FILENAME_LEN);
            rd[i].file_size = 0;
            rd[i].first_data_block_index = FAT_EOC;
-           break;
+           return 0;
         }
     }
 
@@ -176,7 +175,7 @@ int fs_create(const char *filename)
         return -1;
     }
     
-    return 0;
+    return -1;
 }
 
 int fs_delete(const char *filename)
