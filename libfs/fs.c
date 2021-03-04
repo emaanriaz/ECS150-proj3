@@ -168,6 +168,7 @@ int fs_create(const char *filename)
        else if (rd[i].filename[0] == '\0'){
            // found empty entry, now fill it with file name, set size to 0, and set index to FAT_EOC
            memcpy(rd[i].filename, filename, FS_FILENAME_LEN);
+           fat_table[i] = i;
            rd[i].file_size = 0;
            rd[i].first_data_block_index = FAT_EOC;
            return 0;
