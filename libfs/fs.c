@@ -82,12 +82,16 @@ int fs_umount(void)
     }
     // write all meta info and file data to disk
     block_write(sb.root_directory_block_index, rd);
-//    block_write(0, sb);
-    block_write(1, fat_table);
-    block_write(2, fat_table + BLOCK_SIZE);
+    for (int i=1; i<sb.fat_blocks_count;i++){
+        block_write(i, &fat_table[i*(BLOCK_SIZE/2)]);
+    }
+    
+    sb.fat_blocks_count = 0;
+    sb.virtual_disk_blocks_count = 0;
+    sb.data_block_start_index = 0;
+    sb.root_directory_block_index = 0;
 
     free(fat_table);
-//    free(sb);
     free(rd);
 
     if(block_disk_close() == -1){
