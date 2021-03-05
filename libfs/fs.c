@@ -69,7 +69,7 @@ int fs_mount(const char *diskname)
     // create fat table and read into it
     fat_table = malloc(sizeof(uint16_t) * sb.fat_blocks_count * BLOCK_SIZE);
     for (int i=1; i <= sb.fat_blocks_count; i++){
-        block_read(i, fat_table + (i*BLOCK_SIZE));
+        block_read(i, &fat_table[i*(BLOCK_SIZE/2)]);// 2048 entries per fat block
     }
    
     return 0;
@@ -286,7 +286,7 @@ int fs_lseek(int fd, size_t offset)
 }
 
 // returns index of data block corresponding to file's offset
-int data_block_index(size_t offset, uint16_t file_start){
+int data_block_index(size_t offset, uint16 file_start){
     int index = file_start;
     while(index != FAT_EOC && BLOCK_SIZE < offset ){
         index = fat_table[index];
@@ -299,31 +299,37 @@ int data_block_index(size_t offset, uint16_t file_start){
 int fs_write(int fd, void *buf, size_t count)
 {
     
-//    char *filename = (char*)file_d[fd].filename;
-//    int offset = file_d[fd].offset;
-//    // locate file
-//    int file_location = -1;
-//    uint16_t file_start = FAT_EOC;
-//
-//    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
-//        if (strcmp(rd[i].filename, filename) == 0){
-//            file_location = i;
-//            file_start = rd[i].first_data_block_index;
-//            break;
-//        }
-//    }
-//
-//    if (file_location == -1){
-//        return -1;
-//    }
-//
-//    struct root_dir *rdir = &rd[file_location];
-//
-//
-//    char *write_buf = (char*)buf;
-//    void *bounce_buffer = (void*)malloc(BLOCK_SIZE);
-//    uint16_t index = data_block_index(offset, file_start);
-//    int free_block=get_fat_free_blocks();
+    char *filename = (char*)file_d[fd].filename;
+    int offset = file_d[fd].offset;
+    // locate file
+    int file_location = -1;
+    uint16_t file_start = FAT_EOC;
+    
+    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+        if (strcmp(rd[i].filename, filename) == 0){
+            file_location = i;
+            file_start = rd[i].first_data_block_index;
+            break;
+        }
+    }
+    
+    if (file_location == -1){
+        return -1
+    }
+    
+    struct root_dir *rdir = &rd[file_location];
+    
+    
+    char *write_buf = (char*)buf;
+    void *bounce_buffer = (void*)malloc(BLOCK_SIZE);
+    uint16 index = data_block_index(offset, file_start);
+    int free_block=0;
+    
+    for (int i=0; i<sb.data_blocks_count; i++){
+        if (rd[i].filename[0] == '\0'){
+            free_block++;
+        }
+    }
     
     
     return 0;
