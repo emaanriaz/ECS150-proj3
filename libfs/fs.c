@@ -291,6 +291,14 @@ int fs_write(int fd, void *buf, size_t count)
     return 0;
 }
 
+//helper
+static int current_fat_table_block(int iterator, int index){
+    for (int i = 0; i < index; i++){
+        iterator = fat_table[iterator];
+    } //obtain current block
+    return iterator;
+}
+
 int fs_read(int fd, void *buf, size_t count)
 {
      //check if fd is invalid
@@ -315,31 +323,30 @@ int fs_read(int fd, void *buf, size_t count)
         //      size_t offset = file_d[fd].offset;
         uint16_t b_iter = rd->first_data_block_index; // block iterator
         int b_current = offset/BLOCK_SIZE; //current block
-
-        for (int i = 0; i < b_current; i++){
-            b_iter = fat_table[b_iter];
-        } //obtain current block
-
         int byte_location = offset % BLOCK_SIZE;
-        int shift = 0;
-        char *r_buffer = (char *)buf;
+        int new_shift = BLOCK_SIZE;
+        void* b_bounce = buffer_b + byte_location;
+
+        b_iter = current_fat_table_block(b_iter, b_current);
 
         for(int i = 0; i < ((count/BLOCK_SIZE) + 1); i++) {
             block_read(b_iter + sb.data_block_start_index, buffer_b);
 
-            if(byte_location + count > BLOCK_SIZE){
-                shift = BLOCK_SIZE - byte_location;
+            if(byte_location > 0){
+               new_shift = BLOCK_SIZE - byte_location;
+            } else if(BLOCK_SIZE <= count+byte_location){
+               b_bounce -= byte_location;
             } else {
-                shift = count;
+               memcpy(buf+read_bytes, b_bounce, count);
+               read_bytes += count;
+               offset += count;
+               break;
             }
 
-            memcpy(r_buffer, buffer_b + byte_location, shift);
-
-            byte_location = 0;
-            r_buffer = r_buffer + shift;
-            read_bytes = read_bytes + shift;
-            count = count - shift;
-            b_iter = fat_table[b_iter];
+            memcpy(buf+read_bytes, b_bounce, new_shift);
+            read_bytes += new_shift;
+            offset += new_shift;
+            count -= new_shift;
         }
     }
     file_d[fd].offset += read_bytes;
