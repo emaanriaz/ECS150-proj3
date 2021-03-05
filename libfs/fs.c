@@ -69,7 +69,7 @@ int fs_mount(const char *diskname)
     // create fat table and read into it
     fat_table = malloc(sizeof(uint16_t) * sb.fat_blocks_count * BLOCK_SIZE);
     for (int i=1; i <= sb.fat_blocks_count; i++){
-        block_read(i, &fat_table[i*(BLOCK_SIZE/2)]);// 2048 entries per fat block
+        block_read(i, fat_table + (i*BLOCK_SIZE));
     }
    
     return 0;
@@ -285,19 +285,51 @@ int fs_lseek(int fd, size_t offset)
     return 0;
 }
 
+// returns index of data block corresponding to file's offset
+int data_block_index(size_t offset, uint16 file_start){
+    int index = file_start;
+    while(index != FAT_EOC && BLOCK_SIZE < offset ){
+        index = fat_table[index];
+    }
+    return index;
+}
+
+
+
 int fs_write(int fd, void *buf, size_t count)
 {
-    /* TODO: Phase 4 */
+    
+    char *filename = (char*)file_d[fd].filename;
+    int offset = file_d[fd].offset;
+    // locate file
+    int file_location = -1;
+    uint16_t file_start = FAT_EOC;
+    
+    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+        if (strcmp(rd[i].filename, filename) == 0){
+            file_location = i;
+            file_start = rd[i].first_data_block_index;
+            break;
+        }
+    }
+    
+    if (file_location == -1){
+        return -1
+    }
+    
+    struct root_dir *rdir = &rd[file_location];
+    
+    
+    char *write_buf = (char*)buf;
+    void *bounce_buffer = (void*)malloc(BLOCK_SIZE);
+    uint16 index = data_block_index(offset, file_start);
+    int free_block=get_fat_free_blocks();
+    
+    
     return 0;
 }
 
-//helper
-static int current_fat_table_block(int iterator, int index){
-    for (int i = 0; i < index; i++){
-        iterator = fat_table[iterator];
-    } //obtain current block
-    return iterator;
-}
+
 
 int fs_read(int fd, void *buf, size_t count)
 {
@@ -327,7 +359,9 @@ int fs_read(int fd, void *buf, size_t count)
         int new_shift = BLOCK_SIZE;
         void* b_bounce = buffer_b + byte_location;
 
-        b_iter = current_fat_table_block(b_iter, b_current);
+        for (int i = 0; i < b_current; i++){
+            b_iter = fat_table[b_iter];
+        } //obtain current block
 
         for(int i = 0; i < ((count/BLOCK_SIZE) + 1); i++) {
             block_read(b_iter + sb.data_block_start_index, buffer_b);
