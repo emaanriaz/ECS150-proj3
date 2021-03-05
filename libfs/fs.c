@@ -293,7 +293,44 @@ int fs_write(int fd, void *buf, size_t count)
 
 int fs_read(int fd, void *buf, size_t count)
 {
-    /* TODO: Phase 4 */
-    return 0;
+     //check if fd is invalid
+        if(fd > FS_OPEN_MAX_COUNT || fd < 0 || file_d[fd].fd_return == -1){
+                return -1;
+        }
+
+        //check if buf is null
+        if(buf == NULL){
+                return -1;
+        }
+
+        size_t offset = file_d[fd].offset;
+
+        while(count > 0) {
+                if (offset >= rd->file_size){
+                        break;
+                } //at end of file
+
+        //      size_t offset = file_d[fd].offset;
+                uint16_t b_iter = rd->first_data_block_index; // block iterator
+                int b_current = offset/BLOCK_SIZE; //current block
+
+                for (int i = 0; i < b_current; i++){
+                        b_iter = fat_table[b_iter];
+                } //obtain current block
+
+                int byte_location = offset % BLOCK_SIZE;
+
+                int shift = 0;
+                int read_bytes = 0;
+
+                for(int i = 0; i < ((count/BLOCK_SIZE) + 1); i++) {
+                        if(byte_location + count > BLOCK_SIZE){
+                                shift = BLOCK_SIZE - byte_location;
+                        } else {
+                                shift = count;
+                        }
+                }
+        }
+        return 0; //temporary will replace with read_bytes
 }
 
