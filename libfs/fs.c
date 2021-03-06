@@ -87,11 +87,6 @@ int fs_umount(void)
         block_write(i+1, &fat_table[i*(BLOCK_SIZE/2)]);
     }
     
-    for (int i=0; i < FS_FILE_MAX_COUNT; i++){
-        rd[i].file_size =0;
-        rd[i].first_data_block_index =0;
-        memset(rd[i].filename,0,strlen(rd[i].filename));
-    }
     
     memset(sb.signature, '\0', 8);
     sb.fat_blocks_count = 0;
@@ -159,8 +154,17 @@ int fs_create(const char *filename)
         return -1;
     }
  
-
-    int index = 0;
+    int found = -1;
+    
+    for (int i=1; i<FS_FILE_MAX_COUNT; i++){
+        if (rd[i].filename[0] != '\0'){
+            found++;
+        }
+    }
+    
+    if (found == -1){
+        return -1;
+    }
     // iterate over root directory
     for (int i=1; i<FS_FILE_MAX_COUNT; i++){
          if (rd[i].filename[0] == '\0'){
@@ -186,7 +190,7 @@ int fs_delete(const char *filename)
 
     int found = -1;
     uint16_t current_index = FAT_EOC;
-    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+    for (int i=1; i<FS_FILE_MAX_COUNT; i++){
         if (rd[i].filename[0] != '\0'){
             // find the file and set entry name back to null
             if (strcmp((char*)rd[i].filename, filename) == 0){
