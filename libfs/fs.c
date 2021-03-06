@@ -154,15 +154,18 @@ int fs_create(const char *filename)
         return -1;
     }
  
-    int found = 0;
+    int count = 0;
     
     for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+        if (strcmp(rd[i].filename[0], filename) == 0){
+            return -1;
+        }
         if (rd[i].filename[0] != '\0'){
-            found++;
+            count++;
         }
     }
     
-    if (found == 0){
+    if (count > FS_FILE_MAX_COUNT){
         return -1;
     }
     // iterate over root directory
