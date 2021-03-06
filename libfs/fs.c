@@ -68,8 +68,8 @@ int fs_mount(const char *diskname)
 
     // create fat table and read into it
     fat_table = malloc(sizeof(uint16_t) * sb.fat_blocks_count * BLOCK_SIZE);
-    for (int i=1; i <= sb.fat_blocks_count; i++){
-        block_read(i, &fat_table[i*(BLOCK_SIZE/2)]);// 2048 entries per fat block
+    for (int i=0; i <= sb.fat_blocks_count; i++){
+        block_read(i+1, &fat_table[i*(BLOCK_SIZE/2)]);
     }
    
     return 0;
@@ -82,8 +82,9 @@ int fs_umount(void)
     }
     // write all meta info and file data to disk
     block_write(sb.root_directory_block_index, rd);
-    for (int i=1; i<sb.fat_blocks_count;i++){
-        block_write(i, &fat_table[i*(BLOCK_SIZE/2)]);
+    
+    for (int i=0; i<sb.fat_blocks_count;i++){
+        block_write(i+1, &fat_table[i*(BLOCK_SIZE/2)]);
     }
     
     sb.fat_blocks_count = 0;
@@ -171,7 +172,7 @@ int fs_create(const char *filename)
            fat_table[i] = i;
            rd[i].file_size = 0;
            rd[i].first_data_block_index = FAT_EOC;
-           return 0;
+           break;
         }
     }
 
@@ -189,29 +190,31 @@ int fs_delete(const char *filename)
         return -1;
     }
 
+    int found = -1;
+    uint16_t current_index = FAT_EOC;
     for (int i=0; i<FS_FILE_MAX_COUNT; i++){
         if (rd[i].filename[0] != '\0'){
             // find the file and set entry name back to null
             if (strcmp((char*)rd[i].filename, filename) == 0){
                 memset(rd[i].filename, '\0', FS_FILENAME_LEN);
-
-                // free FAT contents
-                uint16_t current_index = rd[i].first_data_block_index;
-                while (current_index != FAT_EOC){
-                    uint16_t temp_index = fat_table[current_index];
-                    fat_table[current_index] = 0;
-                    current_index = temp_index;
-
-                }
-
+                found = 1;
+                current_index = rd[i].first_data_block_index;
                 break;
-            }
-            // if file is not found
-            else {
-                return -1;
             }
         }
     }
+    
+    if (found == -1){
+        return -1;
+    }
+    
+    // free FAT contents
+   while (current_index != FAT_EOC){
+       uint16_t temp_index = fat_table[current_index];
+       fat_table[current_index] = 0;
+       current_index = temp_index;
+
+   }
     return 0;
 }
 
@@ -299,40 +302,36 @@ int data_block_index(size_t offset, uint16_t file_start){
 int fs_write(int fd, void *buf, size_t count)
 {
     
-//    char *filename = (char*)file_d[fd].filename;
-//    int offset = file_d[fd].offset;
-//    // locate file
-//    int file_location = -1;
-//    uint16_t file_start = FAT_EOC;
-//
-//    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
-//        if (strcmp(rd[i].filename, filename) == 0){
-//            file_location = i;
-//            file_start = rd[i].first_data_block_index;
-//            break;
-//        }
-//    }
-//
-//    if (file_location == -1){
-//        return -1;
-//    }
-//
-//    struct root_dir *rdir = &rd[file_location];
-//
-//
-//    char *write_buf = (char*)buf;
-//    void *bounce_buffer = (void*)malloc(BLOCK_SIZE);
-//    uint16 index = data_block_index(offset, file_start);
-//    int free_block=0;
-//
-//    for (int i=0; i<sb.data_blocks_count; i++){
-//        if (rd[i].filename[0] == '\0'){
-//            free_block++;
-//        }
-//    }
-//
+    char *filename = (char*)file_d[fd].filename;
+    int offset = file_d[fd].offset;
+    // locate file
+    int file_location = -1;
+    uint16_t file_start = FAT_EOC;
+
+    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+        if (strcmp(rd[i].filename, filename) == 0){
+            file_location = i;
+            file_start = rd[i].first_data_block_index;
+            break;
+        }
+    }
+
+    if (file_location == -1){
+        return -1;
+    }
+
+    struct root_dir *rdir = &rd[file_location];
+
+
+    char *write_buf = (char*)buf;
+    void *bounce_buffer = (void*)malloc(BLOCK_SIZE);
+    uint16_t index = data_block_index(offset, file_start);
+    int bytes_written =0;
     
-    return 0;
+
+
+    
+    return bytes_written;
 }
 
 
