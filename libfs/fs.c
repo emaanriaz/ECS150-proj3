@@ -153,11 +153,18 @@ int fs_create(const char *filename)
     if (filename == NULL || strlen(filename) > FS_FILENAME_LEN){
         return -1;
     }
- 
 
+    int count =0;
     // iterate over root directory
     for (int i=1; i<FS_FILE_MAX_COUNT; i++){
-         if (rd[i].filename[0] == '\0'){
+        if (strcmp(rd[i].filename, filename) == 0 ){
+            return -1;
+        }
+        
+        if (rd[i].filename[0] != '\0'){
+            count++;
+        }
+         else if (rd[i].filename[0] == '\0'){
            // found empty entry, now fill it with file name, set size to 0, and set index to FAT_EOC
            memcpy(rd[i].filename, filename, FS_FILENAME_LEN);
            fat_table[i] = i;
@@ -165,6 +172,10 @@ int fs_create(const char *filename)
            rd[i].first_data_block_index = FAT_EOC;
            break;
         }
+    }
+    
+    if(count > FS_FILE_MAX_COUNT){
+        return -1;
     }
 
     return -1;
