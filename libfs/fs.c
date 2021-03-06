@@ -162,7 +162,7 @@ int fs_create(const char *filename)
 
     int index = 0;
     // iterate over root directory
-    for (int i=0; i<FS_FILE_MAX_COUNT; i++){
+    for (int i=1; i<FS_FILE_MAX_COUNT; i++){
          if (rd[i].filename[0] == '\0'){
            // found empty entry, now fill it with file name, set size to 0, and set index to FAT_EOC
            memcpy(rd[i].filename, filename, FS_FILENAME_LEN);
