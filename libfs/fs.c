@@ -87,6 +87,13 @@ int fs_umount(void)
         block_write(i+1, &fat_table[i*(BLOCK_SIZE/2)]);
     }
     
+    for (int i=0; i < FS_FILE_MAX_COUNT; i++){
+        rd[i].file_size =0;
+        rd[i].first_data_block_index =0;
+        memset(rd[i].filename,0,strlen(rd[i].filename));
+    }
+    
+    memset(sb.signature, '\0', 8);
     sb.fat_blocks_count = 0;
     sb.virtual_disk_blocks_count = 0;
     sb.data_block_start_index = 0;
