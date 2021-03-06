@@ -323,16 +323,14 @@ int fs_write(int fd, void *buf, size_t count)
         return -1;
     }
 
-//    struct root_dir *rdir = &rd[file_location];
+    struct root_dir *rdir = &rd[file_location];
 
 
-//    char *write_buf = (char*)buf;
-//    void *bounce_buffer = (void*)malloc(BLOCK_SIZE);
-//    uint16_t index = data_block_index(offset, file_start);
+    char *write_buf = (char*)buf;
+    void *bounce_buffer = (void*)malloc(BLOCK_SIZE);
+    uint16_t index = data_block_index(offset, file_start);
     int bytes_written =0;
     
-
-
     
     return bytes_written;
 }

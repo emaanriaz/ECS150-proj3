@@ -5,7 +5,7 @@ all: $(lib)
 
 objs	:= fs.o disk.o
 CC	:= gcc
-CFLAGS	:= -Wall -Werror -Wextra
+CFLAGS	:= -Wall -Wextra
 CFLAGS 	+= -g
 
 ifneq ($(V),1)
