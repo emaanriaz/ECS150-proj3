@@ -160,14 +160,9 @@ int fs_create(const char *filename)
         if (strcmp(rd[i].filename[0], filename) == 0){
             return -1;
         }
-        if (rd[i].filename[0] != '\0'){
-            count++;
-        }
     }
     
-    if (count > FS_FILE_MAX_COUNT){
-        return -1;
-    }
+ 
     // iterate over root directory
     for (int i=1; i<FS_FILE_MAX_COUNT; i++){
          if (rd[i].filename[0] == '\0'){
