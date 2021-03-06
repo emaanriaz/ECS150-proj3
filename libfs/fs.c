@@ -151,22 +151,11 @@ int fs_create(const char *filename)
     if (filename == NULL || strlen(filename) > FS_FILENAME_LEN){
         return -1;
     }
-
-    int file_count=0;
+ 
 
     // iterate over root directory
     for (int i=0; i<FS_FILE_MAX_COUNT; i++){
-        // counting how many files exist
-        if (rd[i].filename[0] != '\0'){
-            file_count++;
-
-            // check is file already exists
-            if (strcmp((char*)rd[i].filename[0], filename) == 0){
-                return -1;
-            }
-        }
-
-       else if (rd[i].filename[0] == '\0'){
+         if (rd[i].filename[0] == '\0'){
            // found empty entry, now fill it with file name, set size to 0, and set index to FAT_EOC
            memcpy(rd[i].filename, filename, FS_FILENAME_LEN);
            fat_table[i] = i;
@@ -176,10 +165,7 @@ int fs_create(const char *filename)
         }
     }
 
-    // check if root dir already contains max number of files
-    if (file_count >= FS_FILE_MAX_COUNT){
-        return -1;
-    }
+     
     
     return -1;
 }
