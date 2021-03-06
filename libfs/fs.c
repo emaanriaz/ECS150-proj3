@@ -105,7 +105,7 @@ int fs_umount(void)
 // helper functions
 int get_fat_free_blocks(){
     int fat_free_blocks = 0;
-    for (int i=1; i<sb.data_blocks_count; i++){
+    for (int i=0; i<sb.data_blocks_count; i++){
         // Entries marked as 0 correspond to free data blocks
         if (fat_table[i] == 0){
             fat_free_blocks++;
@@ -153,6 +153,7 @@ int fs_create(const char *filename)
     }
  
 
+    int index = 0;
     // iterate over root directory
     for (int i=0; i<FS_FILE_MAX_COUNT; i++){
          if (rd[i].filename[0] == '\0'){
