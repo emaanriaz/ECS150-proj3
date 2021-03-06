@@ -284,7 +284,7 @@ int fs_stat(int fd)
 
 int fs_lseek(int fd, size_t offset)
 {
-    if (fd > FS_OPEN_MAX_COUNT || fd < 0 || file_d[fd].fd_return = -1 || offset > rd[fd]file_size){
+    if (fd > FS_OPEN_MAX_COUNT || fd < 0 || file_d[fd].fd_return = -1 || offset > rd[fd].file_size){
         return -1;
     }
     file_d[fd].offset = offset;
