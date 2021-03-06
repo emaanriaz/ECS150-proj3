@@ -217,8 +217,8 @@ int fs_delete(const char *filename)
 
 int fs_ls(void)
 {
-    if (block_disk_count() = -1){
-        return -1;
+    if (block_disk_count() == -1){
+        
     }
     printf("FS Ls:\n");
     for (int i=0; i<FS_FILE_MAX_COUNT; i++){
@@ -329,7 +329,7 @@ int fs_write(int fd, void *buf, size_t count)
     char *write_buf = (char*)buf;
     void *bounce_buffer = (void*)malloc(BLOCK_SIZE);
     uint16_t index = data_block_index(offset, file_start);
-    int bytes_written = 0;
+    int bytes_written =0;
     
 
 
@@ -360,6 +360,7 @@ int fs_read(int fd, void *buf, size_t count)
             break;
         } //at end of file
 
+        //      size_t offset = file_d[fd].offset;
         uint16_t b_iter = rd->first_data_block_index; // block iterator
         int b_current = offset/BLOCK_SIZE; //current block
         int byte_location = offset % BLOCK_SIZE;
